@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
 st.set_page_config(page_title="산리오 감정 표현기")
 st.title("🎀 산리오 감정 표현기 🎀")
@@ -82,11 +83,12 @@ if st.button("결과 보기"):
 # 결과 출력
 if st.session_state.mood:
     character = characters[st.session_state.mood]
-    
-    # 폭죽 효과용 HTML/JS (캐릭터별 색상, 한 번만)
+
+    # 폭죽용 HTML + JS (components.html 사용, 캐릭터별 색상, 한 번만)
     colors = character["color"]
-    confetti_js = f"""
+    confetti_html = f"""
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <canvas id="myCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
     <script>
         var duration = 2000;
         var animationEnd = Date.now() + duration;
@@ -96,11 +98,11 @@ if st.session_state.mood:
         }}
         var interval = setInterval(function() {{
             var timeLeft = animationEnd - Date.now();
-            if(timeLeft <= 0){{
+            if(timeLeft <= 0) {{
                 return clearInterval(interval);
             }}
             var particleCount = 50 * (timeLeft / duration);
-            confetti(Object.assign({{ 
+            confetti(Object.assign({{
                 particleCount: particleCount,
                 origin: {{ x: randomInRange(0, 1), y: Math.random() - 0.2 }},
                 colors: {colors}
@@ -108,7 +110,7 @@ if st.session_state.mood:
         }}, 250);
     </script>
     """
-    st.markdown(confetti_js, unsafe_allow_html=True)
-    
+    components.html(confetti_html, height=0)
+
     st.write(f"**{character['message']}**")
     st.image(character['img'], width=200)
